@@ -231,6 +231,9 @@
   .stat-item { text-align: center; }
   .stat-num { font-size: 1.6rem; font-weight: normal; color: var(--text); line-height: 1; }
   .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dimmer); font-family: system-ui, sans-serif; margin-top: 3px; }
+  .osm-muted { filter: grayscale(70%); }
+  .bench-icon { background: none; border: none; }
+  .bench-icon svg { display: block; }
 </style>
 </head>
 <body>
@@ -409,8 +412,8 @@ var benchMap = L.map('bench-map', {
   zoomControl: true,
 });
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '© CartoDB',
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors', className: 'osm-muted',
   maxZoom: 19,
   opacity: 0.55,
 }).addTo(benchMap);
@@ -445,13 +448,20 @@ BENCHES.forEach(function(b) {
   var hasDed = b.hasDedication;
   if (hasDed) dedCount++;
 
-  var r = hasDed ? 5 : 3.5;
-  var circle = L.circleMarker([b.lat, b.lon], {
-    radius: r,
-    fillColor: color,
-    color: hasDed ? '#fff' : color,
-    weight: hasDed ? 0.8 : 0,
-    fillOpacity: hasDed ? 0.92 : 0.55,
+  var size = hasDed ? 20 : 14;
+  var circle = L.marker([b.lat, b.lon], {
+    icon: L.divIcon({
+      className: 'bench-icon',
+      html: '<svg viewBox="0 0 16 16" width="' + size + '" height="' + size + '" style="opacity:' + (hasDed ? 0.95 : 0.65) + '">' +
+            '<g fill="' + color + '" stroke="#fff" stroke-width="0.5">' +
+            '<rect x="2" y="2" width="12" height="1.7" rx="0.4"/><rect x="2" y="4.4" width="12" height="1.7" rx="0.4"/>' +
+            '<rect x="1" y="8" width="14" height="2.2" rx="0.5"/>' +
+            '<rect x="2.2" y="10.2" width="2.2" height="4.4"/><rect x="11.6" y="10.2" width="2.2" height="4.4"/>' +
+            '</g></svg>',
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
+      popupAnchor: [0, -size / 2],
+    }),
   });
 
   var popupContent =
